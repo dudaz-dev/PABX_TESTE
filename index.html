@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Micro SIP</title>
+</head>
+<body>
+
+<script src="https://fileschat.sfo2.cdn.digitaloceanspaces.com/public/libs/wlclient.js"></script>
+
+<script>
+  const SIP_DOMAIN = 'pabxavsystem.avsti.com.br';
+
+  function processNumber(numeroRaw) {
+    let s = String(numeroRaw || '').replace(/\D/g, "");
+    if (s.startsWith("55")) s = s.slice(2);
+    if (s.length < 9) console && console.warn && console.warn("[WARN] número curto após limpeza:", s);
+    const ddd = s.slice(0, 2) || "";
+    let assinante = s.slice(2) || "";
+    if (assinante.length === 8) assinante = "9" + assinante;
+    let numeroFinal;
+    if (ddd === "31") numeroFinal = ddd + assinante;
+    else numeroFinal = "031" + ddd + assinante;
+    return numeroFinal.replace(/\D/g, "");
+  }
+
+  function extractRawNumber(obj) {
+    if (!obj) return null;
+    const tryKeys = ['numero','telefone','phone','phoneNumber','mobile','celular','contactNumber'];
+    for (const k of tryKeys) if (obj[k]) return obj[k];
+    if (obj.contato) {
+      for (const k of tryKeys) if (obj.contato[k]) return obj.contato[k];
+    }
+    if (typeof obj === 'string') return obj;
+    for (const k in obj) {
+      try {
+        const v = obj[k];
+        if (v && (typeof v === 'string' || typeof v === 'number')) {
+          const digits = String(v).replace(/\D/g,'');
+          if (digits.length >= 8) return v;
+        }
+      } catch(e){}
+    }
+    return null;
+  }
+
+  function openSipUriWithFallback(sipUri) {
+    try { window.location.href = sipUri; } catch(e) { console && console.error && console.error(e); }
+    setTimeout(() => {
+      if (!window.WlExtension) return;
+      window.WlExtension.confirmDialog({
+        title: 'Abrir softphone',
+        text: `Se o softphone não abriu automaticamente, deseja copiar a URI para colar no softphone?\n\n${sipUri}`,
+        callback: (confirm) => {
+          if (confirm && navigator.clipboard) {
+            navigator.clipboard.writeText(sipUri).then(()=>{
+              window.WlExtension.alert({ message: 'URI copiada para a área de transferência', variant: 'success' });
+            }).catch(()=>{
+              window.WlExtension.alert({ message: 'Falha ao copiar automaticamente. Copie manualmente.', variant: 'warning' });
+            });
+          }
+        }
+      });
+    }, 900);
+  }
+
+  function handleCall(obj) {
+    const raw = extractRawNumber(obj);
+    if (!raw) {
+      window.WlExtension.alert({ message: 'Número do contato não encontrado.', variant: 'error' });
+      console && console.log && console.log('Objeto recebido (sem número):', obj);
+      return;
+    }
+    const numeroProcessado = processNumber(raw);
+    const sipUri = `sip:${numeroProcessado}@${SIP_DOMAIN}`;
+
+    window.WlExtension.confirmDialog({
+      title: 'Confirmar ligação',
+      text: `Deseja ligar para: ${numeroProcessado} ?`,
+      callback: (confirm) => {
+        if (confirm) openSipUriWithFallback(sipUri);
+      }
+    });
+  }
+
+  window.WlExtension.initialize({
+    buttons: {
+      'contacts-list': [
+        {
+          icon_url: 'https://img.icons8.com/?size=25&id=vS2ccerqwyKX&format=png&color=000000', // ícone ao lado do contato
+          text: 'Ligar (SIP)',
+          callback: (contato) => {
+
+            handleCall(contato);
+          }
+        }
+      ]
+    },
+
+  });
+</script>
+
+</body>
+</html>
