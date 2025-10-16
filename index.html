@@ -70,6 +70,8 @@
               window.WlExtension.confirmDialog({
                 title: 'Confirmar ligação',
                 text: `Deseja ligar para ${numero}?`,
+                maxWidth: '500px',
+                height: '300px',
                 callback: (ok) => { if (ok) openSipUriWithFallback(sipUri); }
               });
             }
