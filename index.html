@@ -70,6 +70,7 @@
               window.WlExtension.confirmDialog({
                 title: 'Confirmar ligação',
                 text: `Deseja ligar para ${numero}?`,
+                icon_url: 'https://img.icons8.com/?size=50&id=GAxoQhqBxPPM&format=png&color=000000',
                 callback: (ok) => { if (ok) openSipUriWithFallback(sipUri); }
               });
             }
