@@ -12,20 +12,35 @@
   <script>
 
     window.WlExtension.initialize({
-      buttons: {
-        'contacts-list': [
-            {
-              icon_url: 'https://img.icons8.com/?size=25&id=jShwZ2RCyPSO&format=png&color=192D3E',
-              text: 'PABX',
-              callback: () => {
-                window.WlExtension.alert({
-                  message: 'Teste Duda',
-                  variant: 'success'
-                });
-              },
-            }
-          ],
-      }
+      
+    buttons: {
+      'contacts-list': [
+          {
+            icon_url: 'http://localhost/docs/profile.png', // Opcional icone 25x25 
+            text: 'Botao Alert',
+            callback: () => {
+              window.WlExtension.alert({
+                message: 'Mensagem de sucesso',
+                variant: 'success'
+              });
+            },
+          }
+        ],
+        'attendance-view': [
+          {
+            text: 'Ver Perfil',
+            callback: (atendimento) => {
+              window.WlExtension.modal({
+                url: `http://localhost/info-atendimento.php?atendimentoId=${atendimento.atendimentoId}`,
+                title: 'Perfil',
+                maxWidth: '500px',
+                height: '300px'
+              });
+            },
+          }
+        ]
+    },
+      
     });
 
   </script>
