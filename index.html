@@ -41,15 +41,15 @@
   
     function openSipUriWithFallback(sipUri) {
       try { window.location.href = sipUri; } catch(e){ console.error(e); }
-      setTimeout(() => {/*
+     /* setTimeout(() => {/*
         window.WlExtension.confirmDialog({
           title: 'Abrir softphone',
           text: `Se o softphone não abriu automaticamente, deseja copiar a URI?\n\n${sipUri}`,
           callback: (confirm) => {
             if (confirm && navigator.clipboard) navigator.clipboard.writeText(sipUri);
           }
-        });*/
-      }, 800);
+        });
+      }, 800);*/
     }
   
     window.WlExtension.initialize({
