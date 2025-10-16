@@ -39,17 +39,12 @@
       return null;
     }
   
-    function openSipUriWithFallback(sipUri) {
-      try { window.location.href = sipUri; } catch(e){ console.error(e); }
-      setTimeout(() => {
-        window.WlExtension.confirmDialog({
-          title: 'Abrir softphone',
-          text: `Se o softphone não abriu automaticamente, deseja copiar a URI?\n\n${sipUri}`,
-          callback: (confirm) => {
-            if (confirm && navigator.clipboard) navigator.clipboard.writeText(sipUri);
-          }
-        });
-      }, 800);
+    function openSipUriDirect(sipUri) {
+      try {
+        window.location.href = sipUri;
+      } catch (e) {
+        console && console.error && console.error('Erro ao abrir SIP URI:', e);
+      }
     }
   
     window.WlExtension.initialize({
